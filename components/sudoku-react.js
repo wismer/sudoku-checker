@@ -1,3 +1,4 @@
+var gameNumbers = ['del',1,2,3,4,5,6,7,8,9];
 var generateBlankBoard = function() {
   var board = [
     [8, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -71,10 +72,14 @@ var Sudoku = React.createClass({
 
   handleNumberSelect: function(e, cell) {
     var board = this.state.board;
-    console.log(cellChecker(board, cell))
-
-    if (cellChecker(board, cell)) {
-      board[cell.loc.x][cell.loc.y].number = cell.number;
+    if (e.which === 8) {
+      board[cell.loc.x][cell.loc.y].number = 0;
+    } else if (_.isNaN(cell.number)) {
+      return;
+    } else {
+      if (cellChecker(board, cell)) {
+        board[cell.loc.x][cell.loc.y].number = cell.number;
+      }
     }
 
     this.setState({ board: board })
@@ -88,7 +93,6 @@ var Sudoku = React.createClass({
       prevCell.isActive = false;
       board[prevCell.loc.x][prevCell.loc.y] = prevCell;
     }
-
     var activeCell = board[cell.loc.x][cell.loc.y];
     activeCell.isActive = true;
     board[cell.loc.x][cell.loc.y] = activeCell;
@@ -143,17 +147,6 @@ var Cell = React.createClass({
     return { isClickable: false, numberPad: false, value: 8, isActive: false };
   },
 
-  selectCell: function(e) {
-    // e.preventDefault();
-    // this.refs.theInput.getDOMNode().focus();
-    // this.setState({ isActive: !this.state.isActive });
-  },
-
-  // to make sure that the cells that are loaded with a default value
-  // cannot be changed by the user, a check is made the moment before the component
-  // is mounted for the first time
-  // and makes a cell editable if the default value is 0.
-
   componentWillMount: function() {
     if (this.props.val === 0) {
       this.setState({ isClickable: true });
@@ -162,10 +155,9 @@ var Cell = React.createClass({
 
   selectNumber: function(e) {
     var cell = this.props;
+
     cell.number = parseInt(String.fromCharCode(e.which), 10);
-    if (!_.isNaN(cell.number)) {
-      this.props.handleSelection(e, cell);
-    }
+    this.props.handleSelection(e, cell);
   },
 
   makeCellActive: function(e) {
@@ -180,7 +172,7 @@ var Cell = React.createClass({
     return (
       <div onClick={this.makeCellActive}>
         <div style={style} className='game-cell'>{num}
-          <input style={{opacity: "0"}} value={num} onKeyDown={this.selectNumber} type='text' ref='theInput'></input>
+          <input className='cell-placeholder' style={{opacity: "0"}} value={num} onKeyDown={this.selectNumber} type='text' ref='theInput'></input>
         </div>
       </div>
     )
